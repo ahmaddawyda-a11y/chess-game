@@ -20,14 +20,36 @@ jobs:
           sed -i 's#https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js#lib/three.min.js#; s#https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js#lib/chess.min.js#; s#https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js#lib/peerjs.min.js#' www/index.html
       - name: Make app icon
         run: |
-          command -v magick >/dev/null || command -v convert >/dev/null || sudo apt-get install -y imagemagick
-          IM=$(command -v magick || command -v convert)
           mkdir -p assets
-          CROWN='polygon 270,680 240,380 400,500 512,290 624,500 784,380 754,680'
-          BAR='roundrectangle 270,710 754,770 25,25'
-          $IM -size 1024x1024 xc:'#17120d' -fill '#d4af37' -draw "$CROWN" -draw "$BAR" assets/icon-only.png
-          $IM -size 1024x1024 xc:none -fill '#d4af37' -draw "$CROWN" -draw "$BAR" assets/icon-foreground.png
-          $IM -size 1024x1024 xc:'#17120d' assets/icon-background.png
+          python3 - <<'PYEOF'
+          import zlib,struct
+          W=1024
+          poly=[(270,680),(240,380),(400,500),(512,290),(624,500),(784,380),(754,680)]
+          def spans(y):
+              xs=[]
+              for i in range(len(poly)):
+                  x1,y1=poly[i];x2,y2=poly[(i+1)%len(poly)]
+                  if y1<=y<y2 or y2<=y<y1:
+                      xs.append(x1+(y-y1)*(x2-x1)/(y2-y1))
+              xs.sort()
+              return [(int(xs[i]),int(xs[i+1])) for i in range(0,len(xs)-1,2)]
+          def png(path,bg,fg):
+              raw=bytearray()
+              for y in range(W):
+                  row=bytearray(bg*W)
+                  if fg:
+                      sp=spans(y)
+                      if 710<=y<770: sp.append((270,754))
+                      for a,b in sp:
+                          for x in range(a,b): row[x*4:x*4+4]=fg
+                  raw+=b'\x00'+row
+              def ch(t,d): return struct.pack('>I',len(d))+t+d+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)
+              open(path,'wb').write(b'\x89PNG\r\n\x1a\n'+ch(b'IHDR',struct.pack('>IIBBBBB',W,W,8,6,0,0,0))+ch(b'IDAT',zlib.compress(bytes(raw),6))+ch(b'IEND',b''))
+          DARK=bytes([23,18,13,255]);GOLD=bytes([212,175,55,255]);NONE=bytes([0,0,0,0])
+          png('assets/icon-only.png',DARK,GOLD)
+          png('assets/icon-foreground.png',NONE,GOLD)
+          png('assets/icon-background.png',DARK,None)
+          PYEOF
       - name: Build Android
         run: |
           npm install
