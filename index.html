@@ -13,7 +13,7 @@
 html,body{margin:0;min-height:100%}
 body{background:var(--bg);background:radial-gradient(circle at 50% 20%,var(--bg2),var(--bg));color:var(--fg);font-family:Cairo,system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;display:flex;justify-content:center}
 .scr{width:100%;max-width:560px;box-sizing:border-box;display:flex;flex-direction:column}
-#home{padding:32px 20px 24px;gap:14px}
+#home{padding:32px 20px 24px;gap:14px;position:relative}
 .panel{display:flex;flex-direction:column;gap:14px}
 .logo{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:6px}
 h1{margin:0;font-size:38px;font-weight:900;color:var(--acc)}
@@ -42,11 +42,37 @@ button:active{transform:translateY(3px);box-shadow:0 2px 0 #0c0805}
 #mt{font-size:60px;font-weight:900;color:var(--acc);line-height:1.1}
 #ovs{font-size:22px;font-weight:700}
 #ov button{width:100%;max-width:340px}
+#ask{display:none;position:fixed;inset:0;background:rgba(10,7,4,.85);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 28px;text-align:center;z-index:9;font-size:22px;font-weight:700}
+#ask button{width:100%;max-width:340px}
+#toast{display:none;position:fixed;left:16px;right:16px;bottom:24px;background:var(--card);border:2px solid var(--acc);border-radius:14px;padding:12px;text-align:center;z-index:10;font-weight:700}
+.cap{margin-inline-start:auto;display:flex;font-size:22px;line-height:1;direction:ltr}
+#prof{display:flex;align-items:center;gap:14px;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px 14px}
+#lvl{width:52px;height:52px;border-radius:50%;background:var(--acc);color:#17120d;font-weight:900;font-size:24px;display:flex;align-items:center;justify-content:center;flex:none}
+.pi{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+#pname{height:30px;border:0;background:transparent;text-align:start;text-transform:none;padding:0;font-size:18px;font-weight:700;width:100%}
+.bar{height:8px;border-radius:4px;background:#0c0805;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--acc)}
+.pi small{color:var(--mut)}
+#ovlv{font-size:26px;font-weight:900;color:var(--acc)}
+.top button{font-size:18px}
+#avatar{position:absolute;top:16px;inset-inline-end:16px;width:54px;height:54px;min-height:0;padding:0;border-radius:50%;border:2px solid var(--acc);background:var(--card);color:var(--acc);font-size:22px;font-weight:900}
+#avatar b{position:absolute;bottom:-4px;inset-inline-start:-4px;min-width:22px;height:22px;border-radius:11px;background:var(--acc);color:#17120d;font-size:12px;line-height:22px}
+.panel h2,.panel h3{margin:4px 0;color:var(--acc)}
+#themes{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+#themes button{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 12px;font-size:15px}
+#themes .sel{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+#themes i{width:28px;height:28px;border-radius:50%;flex:none}
+input[type=range]{height:auto;padding:0;border:0;background:transparent;accent-color:#d4af37}
+#chat{display:none;position:fixed;left:0;right:0;bottom:0;height:60%;max-width:560px;margin:0 auto;background:var(--bg2);border-top:2px solid var(--acc);flex-direction:column;gap:8px;padding:12px;z-index:8;box-sizing:border-box}
+#cmsgs{flex:1;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.msg{max-width:80%;padding:8px 12px;border-radius:14px;background:var(--card);align-self:flex-start;word-break:break-word}
+.msg.me{align-self:flex-end;background:var(--acc);color:#17120d}
+#cbad{color:#ff6b5e;font-size:12px}
 </style>
 </head>
 <body>
 <div id="home" class="scr">
 <div class="logo"><svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 48 L4 18 L20 30 L32 10 L44 30 L60 18 L56 48 Z" fill="#d4af37"/><rect x="8" y="50" width="48" height="7" rx="3" fill="#d4af37"/></svg><h1 id="h1"></h1><div class="sub" data-i="tag"></div></div>
+<button id="avatar"><span id="avl"></span><b id="avb"></b></button>
 <div id="pmain" class="panel">
 <label class="fld"><span data-i="langlbl"></span><select id="lang"><option value="ar">العربية</option><option value="en">English</option><option value="es">Español</option><option value="tr">Türkçe</option><option value="fr">Français</option></select></label>
 <button id="bonline" class="big pri"><b data-i="online"></b><small data-i="onlined"></small></button><button id="bfriend" class="big"><b data-i="friend"></b><small data-i="friendd"></small></button><button id="baddf" class="big"><b data-i="addf"></b><small data-i="addfd"></small></button><button id="bbot" class="big"><b data-i="botbtn"></b><small data-i="botd"></small></button>
@@ -57,21 +83,105 @@ button:active{transform:translateY(3px);box-shadow:0 2px 0 #0c0805}
 <button class="pback" data-i="back"></button>
 </div>
 <div id="plevel" class="panel" style="display:none"><div id="lv"></div><button class="pback" data-i="back"></button></div>
+<div id="pacc" class="panel" style="display:none">
+<h2 data-i="acc"></h2>
+<div id="prof"><div id="lvl">1</div><div class="pi"><input id="pname" maxlength="14"><div class="bar"><i id="xpb"></i></div><small id="xpt"></small><small id="stt"></small></div></div>
+<h3 data-i="boards"></h3><div id="themes"></div>
+<h3 data-i="sound"></h3>
+<div class="rowc"><button id="sndb"></button><button id="sndt" data-i="test"></button></div>
+<label class="fld"><span data-i="vol"></span><input type="range" id="vol" min="0" max="100"></label>
+<select id="sty"><option value="0"></option><option value="1"></option><option value="2"></option></select>
+<button class="pback" data-i="back"></button>
+</div>
 <div id="olinfo"></div>
 </div>
 <div id="game" class="scr">
-<div class="top"><button id="gback" data-i="home"></button><button id="mic" style="display:none"></button></div>
-<div class="strip"><span class="dot"></span><span id="n2"></span></div>
+<div class="top"><button id="gback" data-i="home"></button><button id="chatb" style="display:none">💬<sup id="cbad"></sup></button><button id="rmute" style="display:none">🔊</button><button id="mic" style="display:none"></button></div>
+<div class="strip"><span class="dot"></span><span id="n2"></span><span class="cap" id="cap2"></span></div>
 <div id="wrap"></div>
-<div class="strip"><span class="dot"></span><span id="n1"></span></div>
+<div class="strip"><span class="dot"></span><span id="n1"></span><span class="cap" id="cap1"></span></div>
 <div id="status"></div>
 <div class="row"><button id="undo" data-i="undo"></button><button id="new" data-i="new"></button></div>
-<div id="ov"><div id="mt"></div><div id="ovs"></div><button id="ovnew" class="pri" data-i="new"></button><button id="ovhome" data-i="home"></button></div>
+<div id="ov"><div id="mt"></div><div id="ovs"></div><div id="ovlv"></div><button id="ovnew" class="pri" data-i="new"></button><button id="ovhome" data-i="home"></button></div>
 </div>
+<div id="chat"><div id="cmsgs"></div><div class="rowc"><input id="cin" maxlength="120"><button id="csend" data-i="send"></button></div><button id="cclose" data-i="close"></button></div>
+<div id="ask"><div id="askt"></div><button id="askyes" class="pri" data-i="accept"></button><button id="askno" data-i="decline"></button></div>
+<div id="toast"></div>
 <audio id="ra" autoplay playsinline></audio>
 <script>
 var V={p:100,n:320,b:330,r:500,q:900,k:0};
-var T={"ar": {"title": "ChessaVox", "bot": "🤖 كمبيوتر", "host": "🌐 إنشاء غرفة", "join": "انضمام", "code": "رمز الغرفة", "undo": "↩ تراجع", "new": "لعبة جديدة", "easy": "سهل", "mid": "متوسط", "hard": "صعب", "lose": "كش مات! خسرت", "botwin": "كش مات! فاز الكمبيوتر 🤖", "win": "كش مات! فزت 🎉", "draw": "تعادل 🤝", "think": "الكمبيوتر يفكر...", "checkturn": "كش! دورك", "turn": "دورك", "opp": "دور الخصم...", "turnw": "دورك (الأبيض)", "nomic": "المايك غير مسموح - اللعب شغال بدون صوتك", "disc": "انقطع الاتصال", "neterr": "تعذّر الاتصال - تأكد من الإنترنت والرمز", "micon": "🎙️ شغال", "micoff": "🔇 مكتوم", "noonline": "الأونلاين يحتاج تطبيق الجوال أو اتصال إنترنت", "creating": "جاري إنشاء الغرفة...", "room": "رمز الغرفة:", "share": "أرسله لصديقك", "friendin": "صديقك دخل! أنت الأبيض ♔", "connecting": "جاري الاتصال...", "connected": "اتصلت! أنت الأسود ♚", "tag": "العب مع أصحابك وتكلموا بالصوت", "langlbl": "اللغة", "online": "اللعب أونلاين", "onlined": "ابحث عن خصم", "friend": "اللعب مع صديق", "friendd": "أنشئ غرفة أو ادخل برمز", "addf": "إضافة صديق", "addfd": "بالاسم أو بالرمز", "botd": "بدون إنترنت", "botbtn": "اللعب ضد الكمبيوتر", "home": "القائمة الرئيسية", "you": "أنت", "comp": "الكمبيوتر", "opp2": "الخصم", "mate": "كش ملك", "win2": "فزت!", "lose2": "خسرت", "searching": "جاري البحث عن خصم...", "nomatch": "ما لقينا خصم الحين، جرّب مرة ثانية", "soon": "إضافة الأصدقاء قريباً", "back": "رجوع"}, "en": {"title": "ChessaVox", "bot": "🤖 Computer", "host": "🌐 Create room", "join": "Join", "code": "Room code", "undo": "↩ Undo", "new": "New game", "easy": "Easy", "mid": "Medium", "hard": "Hard", "lose": "Checkmate! You lost", "botwin": "Checkmate! Computer wins 🤖", "win": "Checkmate! You win 🎉", "draw": "Draw 🤝", "think": "Computer is thinking...", "checkturn": "Check! Your turn", "turn": "Your turn", "opp": "Opponent’s turn...", "turnw": "Your turn (White)", "nomic": "Mic blocked - playing without your voice", "disc": "Disconnected", "neterr": "Connection failed - check internet and code", "micon": "🎙️ Mic on", "micoff": "🔇 Muted", "noonline": "Online play needs the phone app or an internet connection", "creating": "Creating room...", "room": "Room code:", "share": "Send it to your friend", "friendin": "Your friend joined! You are White ♔", "connecting": "Connecting...", "connected": "Connected! You are Black ♚", "tag": "Play with friends and talk by voice", "langlbl": "Language", "online": "Play online", "onlined": "Find an opponent", "friend": "Play with a friend", "friendd": "Create a room or enter a code", "addf": "Add friend", "addfd": "By name or code", "botd": "No internet needed", "botbtn": "Play vs Computer", "home": "Main menu", "you": "You", "comp": "Computer", "opp2": "Opponent", "mate": "CHECKMATE", "win2": "You won!", "lose2": "You lost", "searching": "Searching for an opponent...", "nomatch": "No opponent found, try again", "soon": "Adding friends is coming soon", "back": "Back"}, "es": {"title": "ChessaVox", "bot": "🤖 Ordenador", "host": "🌐 Crear sala", "join": "Unirse", "code": "Código de sala", "undo": "↩ Deshacer", "new": "Nueva partida", "easy": "Fácil", "mid": "Medio", "hard": "Difícil", "lose": "¡Jaque mate! Perdiste", "botwin": "¡Jaque mate! Gana el ordenador 🤖", "win": "¡Jaque mate! Ganaste 🎉", "draw": "Tablas 🤝", "think": "El ordenador piensa...", "checkturn": "¡Jaque! Tu turno", "turn": "Tu turno", "opp": "Turno del rival...", "turnw": "Tu turno (Blancas)", "nomic": "Micrófono bloqueado - juegas sin voz", "disc": "Desconectado", "neterr": "Falló la conexión - revisa internet y el código", "micon": "🎙️ Mic activo", "micoff": "🔇 Silenciado", "noonline": "El modo online necesita la app o conexión a internet", "creating": "Creando sala...", "room": "Código de sala:", "share": "Envíaselo a tu amigo", "friendin": "¡Tu amigo entró! Juegas con Blancas ♔", "connecting": "Conectando...", "connected": "¡Conectado! Juegas con Negras ♚", "tag": "Juega con amigos y habla por voz", "langlbl": "Idioma", "online": "Jugar online", "onlined": "Buscar rival", "friend": "Jugar con un amigo", "friendd": "Crea una sala o escribe un código", "addf": "Añadir amigo", "addfd": "Por nombre o código", "botd": "Sin internet", "botbtn": "Jugar contra el ordenador", "home": "Menú principal", "you": "Tú", "comp": "Ordenador", "opp2": "Rival", "mate": "JAQUE MATE", "win2": "¡Ganaste!", "lose2": "Perdiste", "searching": "Buscando rival...", "nomatch": "No hay rival ahora, inténtalo de nuevo", "soon": "Añadir amigos llegará pronto", "back": "Atrás"}, "tr": {"title": "ChessaVox", "bot": "🤖 Bilgisayar", "host": "🌐 Oda oluştur", "join": "Katıl", "code": "Oda kodu", "undo": "↩ Geri al", "new": "Yeni oyun", "easy": "Kolay", "mid": "Orta", "hard": "Zor", "lose": "Şah mat! Kaybettin", "botwin": "Şah mat! Bilgisayar kazandı 🤖", "win": "Şah mat! Kazandın 🎉", "draw": "Beraberlik 🤝", "think": "Bilgisayar düşünüyor...", "checkturn": "Şah! Sıra sende", "turn": "Sıra sende", "opp": "Rakibin sırası...", "turnw": "Sıra sende (Beyaz)", "nomic": "Mikrofon engellendi - sesin olmadan oynanıyor", "disc": "Bağlantı koptu", "neterr": "Bağlantı başarısız - interneti ve kodu kontrol et", "micon": "🎙️ Mikrofon açık", "micoff": "🔇 Sessiz", "noonline": "Online oyun için uygulama veya internet gerekir", "creating": "Oda oluşturuluyor...", "room": "Oda kodu:", "share": "Arkadaşına gönder", "friendin": "Arkadaşın katıldı! Beyazsın ♔", "connecting": "Bağlanıyor...", "connected": "Bağlandı! Siyahsın ♚", "tag": "Arkadaşlarınla oyna, sesle konuş", "langlbl": "Dil", "online": "Online oyna", "onlined": "Rakip bul", "friend": "Arkadaşla oyna", "friendd": "Oda oluştur veya kod gir", "addf": "Arkadaş ekle", "addfd": "İsim veya kodla", "botd": "İnternet gerekmez", "botbtn": "Bilgisayara karşı oyna", "home": "Ana menü", "you": "Sen", "comp": "Bilgisayar", "opp2": "Rakip", "mate": "ŞAH MAT", "win2": "Kazandın!", "lose2": "Kaybettin", "searching": "Rakip aranıyor...", "nomatch": "Şu an rakip yok, tekrar dene", "soon": "Arkadaş ekleme yakında", "back": "Geri"}, "fr": {"title": "ChessaVox", "bot": "🤖 Ordinateur", "host": "🌐 Créer un salon", "join": "Rejoindre", "code": "Code du salon", "undo": "↩ Annuler", "new": "Nouvelle partie", "easy": "Facile", "mid": "Moyen", "hard": "Difficile", "lose": "Échec et mat ! Vous avez perdu", "botwin": "Échec et mat ! L’ordinateur gagne 🤖", "win": "Échec et mat ! Vous gagnez 🎉", "draw": "Match nul 🤝", "think": "L’ordinateur réfléchit...", "checkturn": "Échec ! À vous", "turn": "À vous de jouer", "opp": "Tour de l’adversaire...", "turnw": "À vous (Blancs)", "nomic": "Micro bloqué - vous jouez sans voix", "disc": "Déconnecté", "neterr": "Échec de connexion - vérifiez internet et le code", "micon": "🎙️ Micro actif", "micoff": "🔇 Muet", "noonline": "Le jeu en ligne nécessite l’appli ou internet", "creating": "Création du salon...", "room": "Code du salon :", "share": "Envoyez-le à votre ami", "friendin": "Votre ami est arrivé ! Vous jouez les Blancs ♔", "connecting": "Connexion...", "connected": "Connecté ! Vous jouez les Noirs ♚", "tag": "Jouez entre amis et parlez à la voix", "langlbl": "Langue", "online": "Jouer en ligne", "onlined": "Trouver un adversaire", "friend": "Jouer avec un ami", "friendd": "Créez un salon ou entrez un code", "addf": "Ajouter un ami", "addfd": "Par nom ou code", "botd": "Sans internet", "botbtn": "Jouer contre l’ordinateur", "home": "Menu principal", "you": "Vous", "comp": "Ordinateur", "opp2": "Adversaire", "mate": "ÉCHEC ET MAT", "win2": "Vous avez gagné !", "lose2": "Vous avez perdu", "searching": "Recherche d’un adversaire...", "nomatch": "Aucun adversaire, réessayez", "soon": "L’ajout d’amis arrive bientôt", "back": "Retour"}};
+var AC=null,sndOn=true,rewarded=false,PR={xp:0,w:0,l:0,d:0,name:''};
+try{var sv=JSON.parse(localStorage.getItem('prof')||'null');if(sv)PR=sv}catch(e){}
+sndOn=PR.snd!==false;
+function lvOf(x){return Math.floor((1+Math.sqrt(1+4*x/25))/2)}
+function saveP(){try{localStorage.setItem('prof',JSON.stringify(PR))}catch(e){}}
+function drawP(){
+  var L=lvOf(PR.xp),a=25*L*(L-1),b=25*(L+1)*L,pn=document.getElementById('pname');
+  document.getElementById('lvl').textContent=L;pn.placeholder=t('guest');if(document.activeElement!==pn)pn.value=PR.name||'';
+  document.getElementById('xpb').style.width=Math.round((PR.xp-a)/(b-a)*100)+'%';
+  document.getElementById('xpt').textContent=t('level')+' '+L+' · XP '+(PR.xp-a)+'/'+(b-a);
+  document.getElementById('stt').textContent=t('wins')+' '+PR.w+' · '+t('losses')+' '+PR.l+' · '+t('draws')+' '+PR.d;
+  document.getElementById('avl').textContent=(PR.name||t('guest')).charAt(0).toUpperCase();document.getElementById('avb').textContent=L;
+}
+function award(){
+  var win=g.in_checkmate()&&g.turn()!==me,loss=g.in_checkmate()&&g.turn()===me,ad,before=lvOf(PR.xp);
+  if(win){ad=mode==='online'?40:({1:10,2:20,3:40}[depth]||20);PR.w++}else if(loss){ad=3;PR.l++}else{ad=5;PR.d++}
+  PR.xp+=ad;saveP();
+  document.getElementById('ovs').textContent+=' +'+ad+' XP';
+  var after=lvOf(PR.xp);if(after>before){document.getElementById('ovlv').textContent=t('levelup')+' '+after;snd('win')}
+  drawP();
+}
+var THEMES=[[0xe9dab9,0x6b4328,0x4a2c17,0xd4af37],[0xeeeef2,0x7b8494,0x2f3542,0xc0c7d1],[0xeeeed2,0x6f9a55,0x2a3b22,0xd4af37],[0xdbe7f0,0x4f7ca3,0x1d2d44,0x9ecbe8],[0x9aa1b5,0x3a3f55,0x14161f,0xd4af37]];
+function hx(n){return '#'+('000000'+n.toString(16)).slice(-6)}
+function setTheme(i){var h=THEMES[i]||THEMES[0];ML.color.set(h[0]);MD.color.set(h[1]);frame.material.color.set(h[2]);gold.material.color.set(h[3]);PR.th=i;saveP();drawThemes()}
+function drawThemes(){
+  var box=document.getElementById('themes');box.innerHTML='';
+  THEMES.forEach(function(h,i){var b=document.createElement('button');if(i===(PR.th||0))b.className='sel';
+    b.innerHTML='<i style="background:linear-gradient(135deg,'+hx(h[0])+' 50%,'+hx(h[1])+' 50%)"></i>';
+    b.appendChild(document.createTextNode(t('th'+i)));b.onclick=function(){setTheme(i)};box.appendChild(b)});
+}
+function drawSnd(){
+  document.getElementById('sndb').textContent=t('sound')+': '+(sndOn?t('on'):t('off'));
+  var o=document.getElementById('sty').options;for(var i=0;i<3;i++)o[i].textContent=t('sty'+i);
+  document.getElementById('sty').value=PR.sty||0;document.getElementById('vol').value=Math.round((PR.vol==null?.8:PR.vol)*100);
+}
+function drawAcc(){drawP();drawThemes();drawSnd()}
+var unread=0;
+function badge(){document.getElementById('cbad').textContent=unread?unread:''}
+function openChat(o){document.getElementById('chat').style.display=o?'flex':'none';if(o){unread=0;badge();var m=document.getElementById('cmsgs');m.scrollTop=m.scrollHeight}}
+function addMsg(txt,mine,who){var m=document.getElementById('cmsgs'),d=document.createElement('div');d.className='msg'+(mine?' me':'');d.textContent=(mine?'':who+': ')+txt;m.appendChild(d);m.scrollTop=m.scrollHeight}
+function gotChat(d){addMsg(String(d.m||'').slice(0,120),false,String(d.n||t('opp2')).slice(0,14));if(document.getElementById('chat').style.display!=='flex'){unread++;badge()}snd('chat')}
+function sendChat(){var i=document.getElementById('cin'),v=i.value.trim();if(!v||!conn||!conn.open)return;conn.send({t:'chat',m:v.slice(0,120),n:PR.name||t('guest')});addMsg(v,true);i.value=''}
+var G0={p:8,n:2,b:2,r:2,q:1},GL={p:'♟',n:'♞',b:'♝',r:'♜',q:'♛'};
+function drawCap(){
+  var cnt={w:{p:0,n:0,b:0,r:0,q:0},b:{p:0,n:0,b:0,r:0,q:0}};
+  g.board().forEach(function(row){row.forEach(function(p){if(p&&p.type!=='k')cnt[p.color][p.type]++})});
+  function lost(c){var h='',st=c==='w'?'color:#f3e9dc':'color:#111;text-shadow:0 0 2px #e8d9c0,0 0 2px #e8d9c0';
+    ['q','r','b','n','p'].forEach(function(k){for(var i=0;i<G0[k]-cnt[c][k];i++)h+='<span style="'+st+'">'+GL[k]+'&#xFE0E;</span>'});return h}
+  document.getElementById('cap2').innerHTML=lost(me==='w'?'b':'w');document.getElementById('cap1').innerHTML=lost(me);
+}
+function arrow(){
+  if(last.length<2)return;var a=P(last[0]),b=P(last[1]),dx=b.x-a.x,dz=b.z-a.z,L=Math.sqrt(dx*dx+dz*dz);if(L<.1)return;
+  var gp=new THREE.Group();gp.position.set(a.x,.1,a.z);gp.rotation.y=-Math.atan2(dz,dx);
+  var mt=new THREE.MeshBasicMaterial({color:0x32d583,transparent:true,opacity:.85,depthTest:false});
+  var sh=new THREE.Mesh(new THREE.BoxGeometry(L-.35,.05,.14),mt);sh.position.x=(L-.35)/2;sh.renderOrder=5;gp.add(sh);
+  var hd=new THREE.Mesh(new THREE.ConeGeometry(.22,.4,16),mt);hd.rotation.z=-Math.PI/2;hd.position.x=L-.2;hd.renderOrder=5;gp.add(hd);
+  H.add(gp);
+}
+function snd(k){
+  if(!sndOn)return;
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();
+    var t0=AC.currentTime,VOL=PR.vol==null?.8:PR.vol,ST=PR.sty||0;
+    function tone(f,d,at,ty,v){v=(v||.25)*VOL;if(ST===1){f*=2;d*=1.8;ty='sine'}else if(ST===2){f*=.8;ty='sine';v*=.7}var o=AC.createOscillator(),gn=AC.createGain();o.type=ty||'sine';o.frequency.setValueAtTime(f,t0+at);gn.gain.setValueAtTime(0,t0+at);gn.gain.linearRampToValueAtTime(v,t0+at+.01);gn.gain.exponentialRampToValueAtTime(.001,t0+at+d);o.connect(gn);gn.connect(AC.destination);o.start(t0+at);o.stop(t0+at+d+.02)}
+    if(k==='move'){tone(180,.09,0,'triangle',.35);tone(110,.12,0,'sine',.3)}
+    else if(k==='cap'){tone(140,.1,0,'sawtooth',.25);tone(90,.18,0,'triangle',.4);tone(220,.08,.05,'square',.12)}
+    else if(k==='check'){tone(660,.12,0,'square',.15);tone(880,.18,.12,'square',.15)}
+    else if(k==='mate'){[523,415,330,262].forEach(function(f,i){tone(f,.45,i*.22,'triangle',.3)});tone(131,1,.9,'sawtooth',.2)}
+    else if(k==='chat'){tone(880,.08,0,'sine',.2);tone(1175,.1,.08,'sine',.2)}
+    else if(k==='win'){[523,659,784,1047].forEach(function(f,i){tone(f,.3,i*.14,'triangle',.3)})}
+  }catch(e){}
+}
+var T={"ar": {"title": "ChessaVox", "bot": "🤖 كمبيوتر", "host": "🌐 إنشاء غرفة", "join": "انضمام", "code": "رمز الغرفة", "undo": "↩ تراجع", "new": "لعبة جديدة", "easy": "سهل", "mid": "متوسط", "hard": "صعب", "lose": "كش مات! خسرت", "botwin": "كش مات! فاز الكمبيوتر 🤖", "win": "كش مات! فزت 🎉", "draw": "تعادل 🤝", "think": "الكمبيوتر يفكر...", "checkturn": "كش! دورك", "turn": "دورك", "opp": "دور الخصم...", "turnw": "دورك (الأبيض)", "nomic": "المايك غير مسموح - اللعب شغال بدون صوتك", "disc": "انقطع الاتصال", "neterr": "تعذّر الاتصال - تأكد من الإنترنت والرمز", "micon": "🎙️ شغال", "micoff": "🔇 مكتوم", "noonline": "الأونلاين يحتاج تطبيق الجوال أو اتصال إنترنت", "creating": "جاري إنشاء الغرفة...", "room": "رمز الغرفة:", "share": "أرسله لصديقك", "friendin": "صديقك دخل! أنت الأبيض ♔", "connecting": "جاري الاتصال...", "connected": "اتصلت! أنت الأسود ♚", "tag": "العب مع أصحابك وتكلموا بالصوت", "langlbl": "اللغة", "online": "اللعب أونلاين", "onlined": "ابحث عن خصم", "friend": "اللعب مع صديق", "friendd": "أنشئ غرفة أو ادخل برمز", "addf": "إضافة صديق", "addfd": "بالاسم أو بالرمز", "botd": "بدون إنترنت", "botbtn": "اللعب ضد الكمبيوتر", "home": "القائمة الرئيسية", "you": "أنت", "comp": "الكمبيوتر", "opp2": "الخصم", "mate": "كش ملك", "win2": "فزت!", "lose2": "خسرت", "searching": "جاري البحث عن خصم...", "nomatch": "ما لقينا خصم الحين، جرّب مرة ثانية", "soon": "إضافة الأصدقاء قريباً", "back": "رجوع", "newreq": "صديقك يطلب لعبة جديدة", "accept": "موافق", "decline": "رفض", "waitnew": "بانتظار موافقة الخصم...", "declined": "الخصم رفض اللعبة الجديدة", "guest": "ضيف", "level": "المستوى", "wins": "فوز", "lv": "م", "levelup": "ارتقيت للمستوى", "acc": "حسابي", "boards": "شكل الرقعة", "th0": "كلاسيك", "th1": "رخام", "th2": "زمردي", "th3": "محيط", "th4": "ليلي", "sound": "الصوت", "vol": "مستوى الصوت", "sty0": "خشب", "sty1": "جرس", "sty2": "ناعم", "test": "تجربة", "send": "إرسال", "close": "إغلاق", "losses": "خسارة", "draws": "تعادل", "on": "شغال", "off": "مطفي"}, "en": {"title": "ChessaVox", "bot": "🤖 Computer", "host": "🌐 Create room", "join": "Join", "code": "Room code", "undo": "↩ Undo", "new": "New game", "easy": "Easy", "mid": "Medium", "hard": "Hard", "lose": "Checkmate! You lost", "botwin": "Checkmate! Computer wins 🤖", "win": "Checkmate! You win 🎉", "draw": "Draw 🤝", "think": "Computer is thinking...", "checkturn": "Check! Your turn", "turn": "Your turn", "opp": "Opponent’s turn...", "turnw": "Your turn (White)", "nomic": "Mic blocked - playing without your voice", "disc": "Disconnected", "neterr": "Connection failed - check internet and code", "micon": "🎙️ Mic on", "micoff": "🔇 Muted", "noonline": "Online play needs the phone app or an internet connection", "creating": "Creating room...", "room": "Room code:", "share": "Send it to your friend", "friendin": "Your friend joined! You are White ♔", "connecting": "Connecting...", "connected": "Connected! You are Black ♚", "tag": "Play with friends and talk by voice", "langlbl": "Language", "online": "Play online", "onlined": "Find an opponent", "friend": "Play with a friend", "friendd": "Create a room or enter a code", "addf": "Add friend", "addfd": "By name or code", "botd": "No internet needed", "botbtn": "Play vs Computer", "home": "Main menu", "you": "You", "comp": "Computer", "opp2": "Opponent", "mate": "CHECKMATE", "win2": "You won!", "lose2": "You lost", "searching": "Searching for an opponent...", "nomatch": "No opponent found, try again", "soon": "Adding friends is coming soon", "back": "Back", "newreq": "Your friend wants a new game", "accept": "Accept", "decline": "Decline", "waitnew": "Waiting for your opponent...", "declined": "Opponent declined a new game", "guest": "Guest", "level": "Level", "wins": "Wins", "lv": "Lv", "levelup": "Level up! Lv", "acc": "My account", "boards": "Board style", "th0": "Classic", "th1": "Marble", "th2": "Emerald", "th3": "Ocean", "th4": "Night", "sound": "Sound", "vol": "Volume", "sty0": "Wood", "sty1": "Bell", "sty2": "Soft", "test": "Test", "send": "Send", "close": "Close", "losses": "Losses", "draws": "Draws", "on": "On", "off": "Off"}, "es": {"title": "ChessaVox", "bot": "🤖 Ordenador", "host": "🌐 Crear sala", "join": "Unirse", "code": "Código de sala", "undo": "↩ Deshacer", "new": "Nueva partida", "easy": "Fácil", "mid": "Medio", "hard": "Difícil", "lose": "¡Jaque mate! Perdiste", "botwin": "¡Jaque mate! Gana el ordenador 🤖", "win": "¡Jaque mate! Ganaste 🎉", "draw": "Tablas 🤝", "think": "El ordenador piensa...", "checkturn": "¡Jaque! Tu turno", "turn": "Tu turno", "opp": "Turno del rival...", "turnw": "Tu turno (Blancas)", "nomic": "Micrófono bloqueado - juegas sin voz", "disc": "Desconectado", "neterr": "Falló la conexión - revisa internet y el código", "micon": "🎙️ Mic activo", "micoff": "🔇 Silenciado", "noonline": "El modo online necesita la app o conexión a internet", "creating": "Creando sala...", "room": "Código de sala:", "share": "Envíaselo a tu amigo", "friendin": "¡Tu amigo entró! Juegas con Blancas ♔", "connecting": "Conectando...", "connected": "¡Conectado! Juegas con Negras ♚", "tag": "Juega con amigos y habla por voz", "langlbl": "Idioma", "online": "Jugar online", "onlined": "Buscar rival", "friend": "Jugar con un amigo", "friendd": "Crea una sala o escribe un código", "addf": "Añadir amigo", "addfd": "Por nombre o código", "botd": "Sin internet", "botbtn": "Jugar contra el ordenador", "home": "Menú principal", "you": "Tú", "comp": "Ordenador", "opp2": "Rival", "mate": "JAQUE MATE", "win2": "¡Ganaste!", "lose2": "Perdiste", "searching": "Buscando rival...", "nomatch": "No hay rival ahora, inténtalo de nuevo", "soon": "Añadir amigos llegará pronto", "back": "Atrás", "newreq": "Tu amigo quiere una nueva partida", "accept": "Aceptar", "decline": "Rechazar", "waitnew": "Esperando al rival...", "declined": "El rival rechazó la nueva partida", "guest": "Invitado", "level": "Nivel", "wins": "Victorias", "lv": "Nv", "levelup": "¡Subiste de nivel! Nv", "acc": "Mi cuenta", "boards": "Estilo del tablero", "th0": "Clásico", "th1": "Mármol", "th2": "Esmeralda", "th3": "Océano", "th4": "Noche", "sound": "Sonido", "vol": "Volumen", "sty0": "Madera", "sty1": "Campana", "sty2": "Suave", "test": "Probar", "send": "Enviar", "close": "Cerrar", "losses": "Derrotas", "draws": "Tablas", "on": "Activado", "off": "Apagado"}, "tr": {"title": "ChessaVox", "bot": "🤖 Bilgisayar", "host": "🌐 Oda oluştur", "join": "Katıl", "code": "Oda kodu", "undo": "↩ Geri al", "new": "Yeni oyun", "easy": "Kolay", "mid": "Orta", "hard": "Zor", "lose": "Şah mat! Kaybettin", "botwin": "Şah mat! Bilgisayar kazandı 🤖", "win": "Şah mat! Kazandın 🎉", "draw": "Beraberlik 🤝", "think": "Bilgisayar düşünüyor...", "checkturn": "Şah! Sıra sende", "turn": "Sıra sende", "opp": "Rakibin sırası...", "turnw": "Sıra sende (Beyaz)", "nomic": "Mikrofon engellendi - sesin olmadan oynanıyor", "disc": "Bağlantı koptu", "neterr": "Bağlantı başarısız - interneti ve kodu kontrol et", "micon": "🎙️ Mikrofon açık", "micoff": "🔇 Sessiz", "noonline": "Online oyun için uygulama veya internet gerekir", "creating": "Oda oluşturuluyor...", "room": "Oda kodu:", "share": "Arkadaşına gönder", "friendin": "Arkadaşın katıldı! Beyazsın ♔", "connecting": "Bağlanıyor...", "connected": "Bağlandı! Siyahsın ♚", "tag": "Arkadaşlarınla oyna, sesle konuş", "langlbl": "Dil", "online": "Online oyna", "onlined": "Rakip bul", "friend": "Arkadaşla oyna", "friendd": "Oda oluştur veya kod gir", "addf": "Arkadaş ekle", "addfd": "İsim veya kodla", "botd": "İnternet gerekmez", "botbtn": "Bilgisayara karşı oyna", "home": "Ana menü", "you": "Sen", "comp": "Bilgisayar", "opp2": "Rakip", "mate": "ŞAH MAT", "win2": "Kazandın!", "lose2": "Kaybettin", "searching": "Rakip aranıyor...", "nomatch": "Şu an rakip yok, tekrar dene", "soon": "Arkadaş ekleme yakında", "back": "Geri", "newreq": "Arkadaşın yeni oyun istiyor", "accept": "Kabul et", "decline": "Reddet", "waitnew": "Rakip bekleniyor...", "declined": "Rakip yeni oyunu reddetti", "guest": "Misafir", "level": "Seviye", "wins": "Galibiyet", "lv": "Sv", "levelup": "Seviye atladın! Sv", "acc": "Hesabım", "boards": "Tahta stili", "th0": "Klasik", "th1": "Mermer", "th2": "Zümrüt", "th3": "Okyanus", "th4": "Gece", "sound": "Ses", "vol": "Ses seviyesi", "sty0": "Ahşap", "sty1": "Çan", "sty2": "Yumuşak", "test": "Dene", "send": "Gönder", "close": "Kapat", "losses": "Mağlubiyet", "draws": "Beraberlik", "on": "Açık", "off": "Kapalı"}, "fr": {"title": "ChessaVox", "bot": "🤖 Ordinateur", "host": "🌐 Créer un salon", "join": "Rejoindre", "code": "Code du salon", "undo": "↩ Annuler", "new": "Nouvelle partie", "easy": "Facile", "mid": "Moyen", "hard": "Difficile", "lose": "Échec et mat ! Vous avez perdu", "botwin": "Échec et mat ! L’ordinateur gagne 🤖", "win": "Échec et mat ! Vous gagnez 🎉", "draw": "Match nul 🤝", "think": "L’ordinateur réfléchit...", "checkturn": "Échec ! À vous", "turn": "À vous de jouer", "opp": "Tour de l’adversaire...", "turnw": "À vous (Blancs)", "nomic": "Micro bloqué - vous jouez sans voix", "disc": "Déconnecté", "neterr": "Échec de connexion - vérifiez internet et le code", "micon": "🎙️ Micro actif", "micoff": "🔇 Muet", "noonline": "Le jeu en ligne nécessite l’appli ou internet", "creating": "Création du salon...", "room": "Code du salon :", "share": "Envoyez-le à votre ami", "friendin": "Votre ami est arrivé ! Vous jouez les Blancs ♔", "connecting": "Connexion...", "connected": "Connecté ! Vous jouez les Noirs ♚", "tag": "Jouez entre amis et parlez à la voix", "langlbl": "Langue", "online": "Jouer en ligne", "onlined": "Trouver un adversaire", "friend": "Jouer avec un ami", "friendd": "Créez un salon ou entrez un code", "addf": "Ajouter un ami", "addfd": "Par nom ou code", "botd": "Sans internet", "botbtn": "Jouer contre l’ordinateur", "home": "Menu principal", "you": "Vous", "comp": "Ordinateur", "opp2": "Adversaire", "mate": "ÉCHEC ET MAT", "win2": "Vous avez gagné !", "lose2": "Vous avez perdu", "searching": "Recherche d’un adversaire...", "nomatch": "Aucun adversaire, réessayez", "soon": "L’ajout d’amis arrive bientôt", "back": "Retour", "newreq": "Votre ami veut une nouvelle partie", "accept": "Accepter", "decline": "Refuser", "waitnew": "En attente de l’adversaire...", "declined": "L’adversaire a refusé la nouvelle partie", "guest": "Invité", "level": "Niveau", "wins": "Victoires", "lv": "Niv", "levelup": "Niveau supérieur ! Niv", "acc": "Mon compte", "boards": "Style du plateau", "th0": "Classique", "th1": "Marbre", "th2": "Émeraude", "th3": "Océan", "th4": "Nuit", "sound": "Son", "vol": "Volume", "sty0": "Bois", "sty1": "Cloche", "sty2": "Doux", "test": "Tester", "send": "Envoyer", "close": "Fermer", "losses": "Défaites", "draws": "Nuls", "on": "Activé", "off": "Désactivé"}};
 var LANG='en';
 function t(k){return (T[LANG]&&T[LANG][k])||T.en[k]||k}
 function applyLang(){
@@ -80,7 +190,7 @@ function applyLang(){
   [].forEach.call(document.querySelectorAll('[data-i]'),function(e){e.textContent=t(e.dataset.i)});
   document.getElementById('rc').placeholder=t('code');
   if($m.style.display!=='none')showMic();
-  status();
+  drawAcc();status();
 }
 function initLang(){
   var l=null;try{l=localStorage.getItem('lang')}catch(e){}
@@ -117,6 +227,7 @@ function make(t,col){
   var mat=M(col==='w'?0xf4ead6:0x1d1d24,.32,col==='w'?.05:.35),gr=new THREE.Group();
   function add(geo,x,y,z,m){var o=new THREE.Mesh(geo,m||mat);o.position.set(x,y,z);o.castShadow=true;gr.add(o);return o}
   function sph(r,x,y,z,m,sy){var o=add(new THREE.SphereGeometry(r,24,18),x,y,z,m);if(sy)o.scale.y=sy;return o}
+  function outl(o,c){var m=new THREE.Mesh(o.geometry,new THREE.MeshBasicMaterial({color:c==='w'?0x2a2a33:0xd9d9e6,side:THREE.BackSide}));m.scale.setScalar(1.07);o.add(m)}
   var pr={
     p:[[0,0],[.4,0],[.42,.05],[.36,.12],[.22,.2],[.14,.36],[.2,.42],[.22,.46],[.14,.5],[0,.5]],
     r:[[0,0],[.42,0],[.44,.05],[.38,.13],[.26,.22],[.22,.6],[.3,.66],[.34,.72],[.34,.8],[0,.8]],
@@ -127,7 +238,7 @@ function make(t,col){
   }[t];
   add(lathe(pr),0,0,0);
   if(t==='p')sph(.22,0,.64,0,M(0xd4af37,.25,.5));
-  if(t==='r'){for(var i=0;i<6;i++){var a=i*Math.PI/3,o=add(new THREE.BoxGeometry(.16,.16,.14),Math.cos(a)*.26,.88,Math.sin(a)*.26);o.rotation.y=-a}}
+  if(t==='r'){var cp=add(new THREE.CylinderGeometry(.25,.25,.04,28),0,.82,0);outl(cp,col);for(var i=0;i<6;i++){var a=i*Math.PI/3,o=add(new THREE.BoxGeometry(.16,.16,.14),Math.cos(a)*.26,.88,Math.sin(a)*.26);o.rotation.y=-a;outl(o,col)}}
   if(t==='b'){sph(.2,0,.8,0,0,1.5);sph(.06,0,1.1,0,GOLD)}
   if(t==='q'){for(var j=0;j<8;j++){var b=j*Math.PI/4;sph(.07,Math.cos(b)*.25,.92,Math.sin(b)*.25,GOLD)}sph(.13,0,1.02,0,mat)}
   if(t==='k'){var tr=add(new THREE.TorusGeometry(.26,.06,12,32),0,1.0,0,GOLD);tr.rotation.x=Math.PI/2;sph(.2,0,1.08,0,mat,.8);sph(.09,0,1.28,0,GOLD)}
@@ -135,7 +246,7 @@ function make(t,col){
     var sh=new THREE.Shape();
     [[-.3,0],[.3,0],[.22,.3],[.32,.48],[.6,.46],[.64,.58],[.42,.8],[.3,.98],[.15,.86],[.02,.98],[-.12,.78],[-.3,.45],[-.32,.2]].forEach(function(p,i){i?sh.lineTo(p[0],p[1]):sh.moveTo(p[0],p[1])});
     var gm=new THREE.ExtrudeGeometry(sh,{depth:.3,bevelEnabled:true,bevelSize:.05,bevelThickness:.05,bevelSegments:3});
-    gm.translate(0,0,-.15);var h=add(gm,0,.2,0);h.scale.set(.9,.9,.9);h.rotation.y=col==='w'?Math.PI/2:-Math.PI/2;
+    gm.translate(0,0,-.15);var h=add(gm,0,.2,0);outl(h,col);h.scale.set(.9,.9,.9);h.rotation.y=col==='w'?Math.PI/2:-Math.PI/2;
   }
   return gr;
 }
@@ -143,7 +254,7 @@ function build(t,col){var k=t+col;if(!tpl[k])tpl[k]=make(t,col);return tpl[k].cl
 function plane(n,col,op,geo){var m=new THREE.Mesh(geo||new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;var p=P(n);m.position.set(p.x,.075,p.z);H.add(m)}
 function drawH(){
   while(H.children.length)H.remove(H.children[0]);
-  last.forEach(function(n){plane(n,0xf6d04d,.35)});
+  last.forEach(function(n){plane(n,0xf6d04d,.35)});arrow();
   if(sel)plane(sel,0xffd24a,.6);
   hints.forEach(function(n){g.get(n)?plane(n,0xe5484d,.85,new THREE.RingGeometry(.36,.47,32)):plane(n,0x2e7d4f,.75,new THREE.CircleGeometry(.16,24))});
 }
@@ -153,7 +264,7 @@ function sync(){
     if(!p)return;var n='abcdefgh'[c]+(8-r),o=build(p.type,p.color);
     o.position.copy(P(n));o.traverse(function(x){x.userData.sq=n});pg.add(o);pm[n]=o;
   })});
-  drawH();status();
+  drawH();status();drawCap();
 }
 function status(){
   var x;
@@ -166,7 +277,7 @@ function status(){
   var ov=document.getElementById('ov');
   if(g.game_over()&&!busy&&!think){
     document.getElementById('mt').textContent=g.in_checkmate()?t('mate'):t('draw');
-    document.getElementById('ovs').textContent=g.in_checkmate()?(g.turn()===me?t('lose2'):t('win2')):'';
+    if(!rewarded){document.getElementById('ovs').textContent=g.in_checkmate()?(g.turn()===me?t('lose2'):t('win2')):'';document.getElementById('ovlv').textContent='';rewarded=true;award()}
     ov.style.display='flex';
   }else ov.style.display='none';
 }
@@ -178,9 +289,9 @@ function loop(t){
   R.render(S,C);
 }
 function play(m,done){
-  var mesh=pm[m.from];g.move({from:m.from,to:m.to,promotion:'q'});
+  var mesh=pm[m.from],mv=g.move({from:m.from,to:m.to,promotion:'q'}),sk=g.in_checkmate()?'mate':g.in_check()?'check':(mv&&mv.captured)?'cap':'move';
   last=[m.from,m.to];sel=null;hints=[];busy=true;drawH();status();
-  an={m:mesh,f:mesh.position.clone(),t:P(m.to),s:performance.now(),cb:function(){busy=false;sync();done&&done()}};
+  an={m:mesh,f:mesh.position.clone(),t:P(m.to),s:performance.now(),cb:function(){busy=false;snd(sk);sync();done&&done()}};
 }
 function evalB(){var s=0;g.board().forEach(function(row){row.forEach(function(p){if(p)s+=(p.color==='b'?1:-1)*V[p.type]})});return s}
 function search(d,a,b,mx){
@@ -222,7 +333,9 @@ R.domElement.addEventListener('click',function(e){
   else{sel=null;hints=[]}
   drawH();
 });
-document.getElementById('new').onclick=function(){if(busy||think)return;if(mode==='online'&&conn&&conn.open)conn.send({t:'new'});resetGame()};
+document.getElementById('new').onclick=function(){if(busy||think)return;reqNew()};
+document.getElementById('askyes').onclick=function(){document.getElementById('ask').style.display='none';if(conn&&conn.open)conn.send({t:'newok'});resetGame()};
+document.getElementById('askno').onclick=function(){document.getElementById('ask').style.display='none';if(conn&&conn.open)conn.send({t:'newno'})};
 document.getElementById('undo').onclick=function(){if(busy||think||mode==='online')return;g.undo();if(g.turn()==='b')g.undo();sel=null;hints=[];last=[];sync()};
 var lv=document.getElementById('lv');
 [['easy',1],['mid',2],['hard',3]].forEach(function(x){
@@ -232,7 +345,9 @@ var lv=document.getElementById('lv');
 var peer=null,conn=null,stream=null,micOn=true,$o=document.getElementById('olinfo'),$m=document.getElementById('mic');
 function info(t){$o.textContent=t}
 function cam(){C.position.set(0,16,me==='b'?-3.2:3.2);C.lookAt(0,0,me==='b'?-.1:.1)}
-function resetGame(){g=new Chess();sel=null;hints=[];last=[];think=false;busy=false;an=null;sync()}
+function toast(m){var e=document.getElementById('toast');e.textContent=m||'';e.style.display=m?'block':'none'}
+function resetGame(){g=new Chess();sel=null;hints=[];last=[];think=false;busy=false;an=null;toast('');rewarded=false;document.getElementById('ask').style.display='none';sync()}
+function reqNew(){if(mode==='online'&&conn&&conn.open){conn.send({t:'newreq'});toast(t('waitnew'))}else resetGame()}
 function setMode(m,c){mode=m;me=c||'w';cam();resetGame()}
 function closeNet(){try{conn&&conn.close()}catch(e){}try{peer&&peer.destroy()}catch(e){}if(stream)stream.getTracks().forEach(function(t){t.stop()});peer=conn=stream=null;$m.style.display='none'}
 function silent(){var a=new (window.AudioContext||window.webkitAudioContext)();return a.createMediaStreamDestination().stream}
@@ -244,7 +359,7 @@ function remoteAudio(s){var a=document.getElementById('ra');a.srcObject=s;var p=
 function answerCalls(){peer.on('call',function(call){call.answer(stream);call.on('stream',remoteAudio)})}
 function recv(d){if(busy||an){setTimeout(function(){recv(d)},150);return}play({from:d.from,to:d.to})}
 function wire(c){
-  c.on('data',function(d){if(d.t==='move')recv(d);else if(d.t==='new')resetGame()});
+  c.on('data',function(d){if(d.t==='move')recv(d);else if(d.t==='chat')gotChat(d);else if(d.t==='newreq'){document.getElementById('askt').textContent=t('newreq');document.getElementById('ask').style.display='flex'}else if(d.t==='newok')resetGame();else if(d.t==='newno'){toast(t('declined'));setTimeout(function(){toast('')},2500)}});
   c.on('close',function(){info(t('disc'))});
 }
 function netErr(e){info(t('neterr')+' ('+(e&&e.type?e.type:'error')+')')}
@@ -280,15 +395,15 @@ function joinRoom(id){
 }
 document.getElementById('mhost').onclick=host;
 document.getElementById('mjoin').onclick=join;
-function showPanel(p){['pmain','pfriend','plevel'].forEach(function(i){document.getElementById(i).style.display=i===p?'flex':'none'})}
+function showPanel(p){['pmain','pfriend','plevel','pacc'].forEach(function(i){document.getElementById(i).style.display=i===p?'flex':'none'})}
 function goGame(){
   document.getElementById('home').style.display='none';document.getElementById('game').style.display='flex';
-  document.getElementById('n2').textContent=mode==='bot'?t('comp'):t('opp2');document.getElementById('n1').textContent=t('you');
-  document.getElementById('undo').style.display=mode==='bot'?'':'none';
+  document.getElementById('n2').textContent=mode==='bot'?t('comp'):t('opp2');document.getElementById('n1').textContent=(PR.name||t('you'))+' · '+t('lv')+' '+lvOf(PR.xp);
+  document.getElementById('undo').style.display=mode==='bot'?'':'none';document.getElementById('chatb').style.display=mode==='online'?'':'none';document.getElementById('rmute').style.display=mode==='online'?'':'none';
   rs();sync();
 }
 function goHome(){
-  closeNet();setMode('bot','w');info('');
+  closeNet();setMode('bot','w');info('');document.getElementById('cmsgs').innerHTML='';openChat(false);unread=0;badge();document.getElementById('ra').muted=false;document.getElementById('rmute').textContent='🔊';
   document.getElementById('game').style.display='none';document.getElementById('home').style.display='flex';showPanel('pmain');
 }
 function startBot(){closeNet();setMode('bot','w');info('');goGame()}
@@ -320,11 +435,23 @@ document.getElementById('bbot').onclick=function(){showPanel('plevel')};
 document.getElementById('baddf').onclick=function(){info(t('soon'))};
 [].forEach.call(document.querySelectorAll('.pback'),function(b){b.onclick=function(){closeNet();info('');showPanel('pmain')}});
 document.getElementById('gback').onclick=goHome;
+document.getElementById('pname').onchange=function(){PR.name=this.value.trim().slice(0,14);saveP()};
+document.getElementById('avatar').onclick=function(){showPanel('pacc');drawAcc()};
+document.getElementById('chatb').onclick=function(){openChat(true)};
+document.getElementById('rmute').onclick=function(){var a=document.getElementById('ra');a.muted=!a.muted;this.textContent=a.muted?'🔇':'🔊'};
+document.getElementById('cclose').onclick=function(){openChat(false)};
+document.getElementById('csend').onclick=sendChat;
+document.getElementById('cin').onkeydown=function(e){if(e.key==='Enter')sendChat()};
+document.getElementById('sndb').onclick=function(){sndOn=!sndOn;PR.snd=sndOn;saveP();drawSnd()};
+document.getElementById('sndt').onclick=function(){snd('move')};
+document.getElementById('vol').oninput=function(){PR.vol=this.value/100;saveP()};
+document.getElementById('sty').onchange=function(){PR.sty=+this.value;saveP();snd('move')};
+document.addEventListener('pointerdown',function(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();AC.resume()}catch(e){}},{once:true});
 document.getElementById('ovhome').onclick=goHome;
-document.getElementById('ovnew').onclick=function(){if(mode==='online'&&conn&&conn.open)conn.send({t:'new'});resetGame()};
+document.getElementById('ovnew').onclick=reqNew;
 $m.onclick=function(){micOn=!micOn;if(stream)stream.getAudioTracks().forEach(function(t){t.enabled=micOn});showMic()};
 function rs(){var w=wrap.clientWidth,h=wrap.clientHeight;if(!w||!h)return;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}
-window.addEventListener('resize',rs);rs();initLang();sync();requestAnimationFrame(loop);
+window.addEventListener('resize',rs);rs();initLang();setTheme(PR.th||0);sync();requestAnimationFrame(loop);
 </script>
 </body>
 </html>
