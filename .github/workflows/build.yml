@@ -11,16 +11,28 @@ jobs:
         with: { distribution: temurin, java-version: 17 }
       - name: Prepare web app
         run: |
+          echo '{"appId":"com.chessavox.app","appName":"ChessaVox","webDir":"www"}' > capacitor.config.json
           mkdir -p www/lib
           cp index.html www/index.html
           curl -fL -o www/lib/three.min.js https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js
           curl -fL -o www/lib/chess.min.js https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js
           curl -fL -o www/lib/peerjs.min.js https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js
           sed -i 's#https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js#lib/three.min.js#; s#https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js#lib/chess.min.js#; s#https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js#lib/peerjs.min.js#' www/index.html
+      - name: Make app icon
+        run: |
+          command -v magick >/dev/null || command -v convert >/dev/null || sudo apt-get install -y imagemagick
+          IM=$(command -v magick || command -v convert)
+          mkdir -p assets
+          CROWN='polygon 270,680 240,380 400,500 512,290 624,500 784,380 754,680'
+          BAR='roundrectangle 270,710 754,770 25,25'
+          $IM -size 1024x1024 xc:'#17120d' -fill '#d4af37' -draw "$CROWN" -draw "$BAR" assets/icon-only.png
+          $IM -size 1024x1024 xc:none -fill '#d4af37' -draw "$CROWN" -draw "$BAR" assets/icon-foreground.png
+          $IM -size 1024x1024 xc:'#17120d' assets/icon-background.png
       - name: Build Android
         run: |
           npm install
           npx cap add android
+          npx @capacitor/assets generate --android --iconBackgroundColor '#17120d' || echo icon generation skipped
           M=android/app/src/main/AndroidManifest.xml
           sed -i 's#<uses-permission android:name="android.permission.INTERNET" />#&\n    <uses-permission android:name="android.permission.RECORD_AUDIO" />\n    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />#' $M
           grep RECORD_AUDIO $M
